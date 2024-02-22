@@ -145,8 +145,12 @@ use it to find the project's name." docstring)
            ,@body)))))
 
 (activity-watch--gen-feature-resolver 'project project
-  (when (project-current)
-    (project-name (project-current))))
+  (when-let ((project (project-current)))
+    (if (fboundp 'project-name)
+        ;; `project-name' is a generic function added in Emacs 29.1
+        (project-name project)
+      ;; For earlier versions, use the generic function's default definition
+      (file-name-nondirectory (directory-file-name (first (project-roots project)))))))
 
 (activity-watch--gen-feature-resolver 'projectile projectile
   (when (projectile-project-p)
